@@ -6,6 +6,14 @@ $auth->requireUserLogin();
 $user = $auth->getCurrentUser();
 $db = new Database();
 
+// Compute a robust public URL base for uploads
+$uploadsDir = rtrim(UPLOAD_DIR, '/');
+if (preg_match('#^https?://#', $uploadsDir) || substr($uploadsDir, 0, 1) === '/') {
+    $uploadsBase = $uploadsDir . '/';
+} else {
+    $uploadsBase = $uploadsDir . '/';
+}
+
 $error = '';
 $success = '';
 
@@ -272,11 +280,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['payment_proof'])) {
                         <div style="text-align: left; color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 600;">
                             <i class="fas fa-image"></i> Preuve envoyée
                         </div>
-                        <a href="<?php echo UPLOAD_DIR . $order['payment_proof']; ?>" target="_blank" style="display: inline-block; text-decoration: none;">
-                            <img src="<?php echo UPLOAD_DIR . $order['payment_proof']; ?>" alt="Preuve de paiement" style="width: 100%; max-height: 420px; object-fit: contain; border: 1px solid var(--border-color); border-radius: 8px;" />
+                        <a href="<?php echo $uploadsBase . $order['payment_proof']; ?>" target="_blank" style="display: inline-block; text-decoration: none;">
+                            <img src="<?php echo $uploadsBase . $order['payment_proof']; ?>" alt="Preuve de paiement" style="width: 100%; max-height: 420px; object-fit: contain; border: 1px solid var(--border-color); border-radius: 8px;" />
                         </a>
                         <div style="margin-top: 0.5rem;">
-                            <a href="<?php echo UPLOAD_DIR . $order['payment_proof']; ?>" target="_blank" class="btn btn-secondary" style="text-decoration: none;">
+                            <a href="<?php echo $uploadsBase . $order['payment_proof']; ?>" target="_blank" class="btn btn-secondary" style="text-decoration: none;">
                                 <i class="fas fa-external-link-alt"></i> Ouvrir l'image
                             </a>
                         </div>
