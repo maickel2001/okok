@@ -56,6 +56,19 @@ $popular_services = $db->fetchAll("
     ORDER BY order_count DESC
     LIMIT 5
 ");
+
+// Evolution des commandes/CA (6 derniers mois)
+$monthly_stats = $db->fetchAll("
+    SELECT
+        DATE_FORMAT(created_at, '%Y-%m') as month,
+        DATE_FORMAT(created_at, '%b %Y') as month_name,
+        COUNT(*) as order_count,
+        SUM(total_amount) as total_amount
+    FROM orders
+    WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+    GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+    ORDER BY month ASC
+");
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -65,6 +78,7 @@ $popular_services = $db->fetchAll("
     <title>Dashboard Admin - <?php echo SITE_NAME; ?></title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- Navigation Admin -->
@@ -175,6 +189,18 @@ $popular_services = $db->fetchAll("
                     </div>
                 </div>
             </div>
+
+            <!-- Evolution des 6 derniers mois -->
+            <?php if (!empty($monthly_stats)): ?>
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3 style="color: var(--primary-color); margin-bottom: 1rem;">
+                    <i class="fas fa-chart-line"></i> Évolution commandes et CA (6 derniers mois)
+                </h3>
+                <div style="height: 320px; position: relative;">
+                    <canvas id="adminOrdersChart" width="100%" height="100%"></canvas>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <div style="display: grid; grid-template-columns: 1fr 300px; gap: 2rem; align-items: start;">
                 <!-- Commandes nécessitant une attention -->
@@ -338,27 +364,52 @@ $popular_services = $db->fetchAll("
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Mettre à jour les statistiques sans recharger la page
-                        document.querySelector('.stat-card:nth-child(3) .stat-number').textContent = data.stats.pending_orders;
+                        // Mettre à jour la tuile "En attente" sans rechargement
+                        document.querySelector('.dashboard-stats .stat-card:nth-child(3) .stat-number').textContent = data.stats.pending_orders;
                     }
                 })
-                .catch(error => console.log('Erreur lors de la mise à jour des stats'));
+                .catch(() => {});
         }, 30000);
 
-        // Graphique simple des commandes (pourrait être amélioré avec Chart.js)
-        function createSimpleChart() {
-            // Cette fonction pourrait être étendue pour créer des graphiques
-            console.log('Graphiques disponibles dans une version future');
-        }
-
-        // Notifications pour nouvelles commandes
-        function checkNewOrders() {
-            // Cette fonction pourrait vérifier les nouvelles commandes
-            console.log('Vérification des nouvelles commandes...');
-        }
-
-        // Démarrer les vérifications périodiques
-        setInterval(checkNewOrders, 60000); // Chaque minute
+        // Graphique des 6 derniers mois
+        (function initChart() {
+            const data = <?php echo json_encode($monthly_stats, JSON_UNESCAPED_UNICODE); ?>;
+            if (!data || !data.length) return;
+            const ctx = document.getElementById('adminOrdersChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.month_name),
+                    datasets: [{
+                        label: 'Commandes',
+                        data: data.map(d => Number(d.order_count)),
+                        borderColor: '#00ff88',
+                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                        fill: true,
+                        tension: 0.35,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Montant (FCFA)',
+                        data: data.map(d => Number(d.total_amount)),
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0,123,255,0.1)',
+                        fill: true,
+                        tension: 0.35,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#ffffff' } } },
+                    scales: {
+                        x: { ticks: { color: '#b0b0b0' }, grid: { color: '#333333' } },
+                        y: { ticks: { color: '#b0b0b0' }, grid: { color: '#333333' }, beginAtZero: true },
+                        y1: { position: 'right', ticks: { color: '#b0b0b0' }, grid: { drawOnChartArea: false }, beginAtZero: true }
+                    }
+                }
+            });
+        })();
     </script>
 </body>
 </html>
