@@ -1,7 +1,19 @@
 <?php
-// Lightweight bootstrap (no DB requirement to render)
-require_once __DIR__ . '/../config/database.php';
+// Decoupled bootstrap without requiring database.php
 if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+// Load .env if available
+$envLoader = __DIR__ . '/../config/env.php';
+if (is_readable($envLoader)) { require_once $envLoader; }
+
+// Derive base URL from request if SITE_URL not set
+$scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+$derivedBase = $scheme . '://' . $host;
+
+if (!defined('SITE_URL')) { define('SITE_URL', getenv('SITE_URL') ?: $derivedBase); }
+if (!defined('SITE_NAME')) { define('SITE_NAME', getenv('SITE_NAME') ?: 'SMM Pro'); }
+if (!defined('UPLOAD_DIR')) { define('UPLOAD_DIR', rtrim(getenv('UPLOAD_DIR') ?: 'uploads/', '/') . '/'); }
+if (!defined('LOGS_DIR')) { define('LOGS_DIR', rtrim(getenv('LOGS_DIR') ?: 'logs/', '/') . '/'); }
 
 // Ensure only admins can access
 if (!isset($_SESSION['admin_id'])) {
@@ -10,12 +22,12 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
-// Current values from constants/env
+// Current values
 $current = [
     'SITE_NAME' => SITE_NAME,
     'SITE_URL' => SITE_URL,
     'UPLOAD_DIR' => UPLOAD_DIR,
-    'LOGS_DIR' => defined('LOGS_DIR') ? LOGS_DIR : 'logs/',
+    'LOGS_DIR' => LOGS_DIR,
 ];
 
 $success = '';
@@ -30,11 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($siteName === '' || $siteUrl === '' || $uploadDir === '' || $logsDir === '') {
         $error = "Tous les champs sont obligatoires.";
     } else {
-        // Normalize directories with trailing slash
         if ($uploadDir !== '' && substr($uploadDir, -1) !== '/') { $uploadDir .= '/'; }
         if ($logsDir !== '' && substr($logsDir, -1) !== '/') { $logsDir .= '/'; }
 
-        // Build local settings PHP overrides (idempotent)
         $vars = [
             'SITE_NAME' => $siteName,
             'SITE_URL' => $siteUrl,
@@ -58,7 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "Impossible d'enregistrer les paramètres (vérifiez les permissions du dossier config/).";
         } else {
             $success = 'Paramètres enregistrés avec succès.';
-            // Reflect immediately on page
             $current['SITE_NAME'] = $siteName;
             $current['SITE_URL'] = $siteUrl;
             $current['UPLOAD_DIR'] = $uploadDir;
