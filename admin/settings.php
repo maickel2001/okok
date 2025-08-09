@@ -16,6 +16,28 @@ if (!isset($_SESSION['admin_id'])) {
 
 $adminName = isset($_SESSION['admin_name']) ? $_SESSION['admin_name'] : 'Admin';
 
+// Separate connection test (do not crash the page)
+$dbStatus = ['ok' => false, 'message' => ''];
+try {
+    $pdo = new PDO(
+        'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
+        DB_USER,
+        DB_PASS,
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ]
+    );
+    // Quick ping
+    $pdo->query('SELECT 1');
+    $dbStatus['ok'] = true;
+    $dbStatus['message'] = 'Connexion DB OK';
+} catch (Throwable $e) {
+    $dbStatus['ok'] = false;
+    $dbStatus['message'] = 'Erreur DB: ' . $e->getMessage();
+}
+
 // Current values
 $current = [
     'SITE_NAME' => SITE_NAME,
@@ -79,6 +101,7 @@ if (isset($_GET['plain']) && $_GET['plain'] == '1') {
     header('Content-Type: text/html; charset=UTF-8');
     echo '<!doctype html><html><head><meta charset="utf-8"><title>Paramètres (fallback)</title></head><body style="font-family: Arial; padding:20px;">';
     echo '<h1>Paramètres du site (mode simplifié)</h1>';
+    echo '<p><strong>Status DB:</strong> '.htmlspecialchars($dbStatus['message']).'</p>';
     if (!empty($error)) { echo '<div style="color:#ff4444;">'.$error.'</div>'; }
     if (!empty($success)) { echo '<div style="color:#00aa66;">'.$success.'</div>'; }
     echo '<form method="POST">';
@@ -99,6 +122,7 @@ if (isset($_GET['plain']) && $_GET['plain'] == '1') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paramètres du site - Admin <?php echo htmlspecialchars($current['SITE_NAME']); ?></title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/admin-settings.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -122,46 +146,73 @@ if (isset($_GET['plain']) && $_GET['plain'] == '1') {
         </div>
     </nav>
 
-    <div class="dashboard">
+    <div class="settings-container">
         <div class="container">
-            <div class="dashboard-header">
+            <div class="settings-grid">
                 <div>
-                    <h1 style="color: var(--text-primary); margin-bottom: 0.5rem;">
-                        <i class="fas fa-sliders-h"></i> Paramètres du site
-                    </h1>
-                    <p style="color: var(--text-secondary);">Gérez les informations principales de votre site.</p>
+                    <div class="settings-card">
+                        <h2 style="color: var(--primary-color); margin-bottom: 1rem;"><i class="fas fa-sliders-h"></i> Paramètres du site</h2>
+                        <?php if ($error): ?>
+                            <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> <?php echo $error; ?></div>
+                        <?php endif; ?>
+                        <?php if ($success): ?>
+                            <div class="alert alert-success"><i class="fas a-check-circle"></i> <?php echo $success; ?></div>
+                        <?php endif; ?>
+
+                        <form method="POST" class="settings-form">
+                            <div class="form-group">
+                                <label for="SITE_NAME"><i class="fas fa-tag"></i> Nom du site</label>
+                                <input type="text" id="SITE_NAME" name="SITE_NAME" class="form-control" required value="<?php echo htmlspecialchars($current['SITE_NAME']); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label for="SITE_URL"><i class="fas fa-link"></i> URL du site</label>
+                                <input type="url" id="SITE_URL" name="SITE_URL" class="form-control" required placeholder="https://votre-domaine.com" value="<?php echo htmlspecialchars($current['SITE_URL']); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label for="UPLOAD_DIR"><i class="fas fa-folder-open"></i> Dossier/URL des uploads</label>
+                                <input type="text" id="UPLOAD_DIR" name="UPLOAD_DIR" class="form-control" required placeholder="uploads ou /uploads ou https://cdn..." value="<?php echo htmlspecialchars($current['UPLOAD_DIR']); ?>">
+                                <small style="color: var(--text-secondary);">Accepte un dossier relatif (uploads), un chemin absolu (/uploads) ou une URL complète.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="LOGS_DIR"><i class="fas fa-file-alt"></i> Dossier des logs</label>
+                                <input type="text" id="LOGS_DIR" name="LOGS_DIR" class="form-control" required placeholder="logs" value="<?php echo htmlspecialchars($current['LOGS_DIR']); ?>">
+                            </div>
+
+                            <div class="settings-actions">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
+                                <a class="btn btn-secondary" href="settings.php?plain=1" target="_blank"><i class="fas fa-external-link-alt"></i> Mode simplifié</a>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </div>
 
-            <?php if ($error): ?>
-                <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> <?php echo $error; ?></div>
-            <?php endif; ?>
-            <?php if ($success): ?>
-                <div class="alert alert-success"><i class="fas fa-check-circle"></i> <?php echo $success; ?></div>
-            <?php endif; ?>
-
-            <div class="card">
-                <form method="POST">
-                    <div class="form-group">
-                        <label for="SITE_NAME"><i class="fas fa-tag"></i> Nom du site</label>
-                        <input type="text" id="SITE_NAME" name="SITE_NAME" class="form-control" required value="<?php echo htmlspecialchars($current['SITE_NAME']); ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="SITE_URL"><i class="fas fa-link"></i> URL du site</label>
-                        <input type="url" id="SITE_URL" name="SITE_URL" class="form-control" required placeholder="https://votre-domaine.com" value="<?php echo htmlspecialchars($current['SITE_URL']); ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="UPLOAD_DIR"><i class="fas fa-folder-open"></i> Dossier/URL des uploads</label>
-                        <input type="text" id="UPLOAD_DIR" name="UPLOAD_DIR" class="form-control" required placeholder="uploads ou /uploads ou https://cdn..." value="<?php echo htmlspecialchars($current['UPLOAD_DIR']); ?>">
-                        <small style="color: var(--text-secondary);">Accepte un dossier relatif (uploads), un chemin absolu (/uploads) ou une URL complète.</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="LOGS_DIR"><i class="fas fa-file-alt"></i> Dossier des logs</label>
-                        <input type="text" id="LOGS_DIR" name="LOGS_DIR" class="form-control" required placeholder="logs" value="<?php echo htmlspecialchars($current['LOGS_DIR']); ?>">
+                <div>
+                    <div class="settings-card">
+                        <h3 style="color: var(--primary-color); margin-bottom: 1rem;"><i class="fas fa-database"></i> État de la base</h3>
+                        <div class="db-status <?php echo $dbStatus['ok'] ? 'ok' : 'error'; ?>">
+                            <div style="display:flex; align-items:center; gap:0.5rem;">
+                                <i class="fas <?php echo $dbStatus['ok'] ? 'fa-check-circle' : 'fa-exclamation-triangle'; ?>" style="color: <?php echo $dbStatus['ok'] ? 'var(--success-color)' : 'var(--error-color)'; ?>;"></i>
+                                <strong><?php echo htmlspecialchars($dbStatus['message']); ?></strong>
+                            </div>
+                            <?php if ($dbStatus['ok']): ?>
+                            <div style="margin-top: 0.75rem; color: var(--text-secondary); font-size: 0.9rem;">
+                                Hôte: <?php echo htmlspecialchars(DB_HOST); ?><br>
+                                Base: <?php echo htmlspecialchars(DB_NAME); ?><br>
+                                Utilisateur: <?php echo htmlspecialchars(DB_USER); ?>
+                            </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
-                </form>
+                    <div class="settings-card" style="margin-top: 1.5rem;">
+                        <h3 style="color: var(--primary-color); margin-bottom: 1rem;"><i class="fas fa-info-circle"></i> Conseils</h3>
+                        <ul style="color: var(--text-secondary); line-height:1.8; margin:0; padding-left:1.2rem;">
+                            <li>Après modification de SITE_URL, reconnectez-vous si nécessaire.</li>
+                            <li>Si l'image de preuve ne s'affiche pas, mettez UPLOAD_DIR en URL complète (CDN/sous-domaine).</li>
+                            <li>Assurez-vous que le dossier config/ est inscriptible pour sauvegarder les réglages.</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
