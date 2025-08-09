@@ -1,5 +1,7 @@
 <?php
 // Admin Fix Settings - Safe defaults and DB test
+if (function_exists('ini_set')) { @ini_set('display_errors', '1'); }
+@error_reporting(E_ALL);
 if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
 $envLoader = __DIR__ . '/../config/env.php';
 if (is_readable($envLoader)) { require_once $envLoader; }
