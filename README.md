@@ -114,6 +114,23 @@ location ~ \.php$ {
 }
 ```
 
+## 🔧 Configuration via .env (recommandé)
+
+Créez un fichier `.env` à la racine en vous inspirant de `.env.example`:
+
+```
+SITE_NAME="SMM Pro"
+SITE_URL="http://localhost"
+DB_HOST=localhost
+DB_NAME=your_database_name
+DB_USER=your_database_user
+DB_PASS=your_database_password
+UPLOAD_DIR=uploads
+LOGS_DIR=logs
+```
+
+Les chemins absolus ont été supprimés: les includes utilisent désormais `__DIR__`.
+
 ## 👤 Comptes par défaut
 
 ### Administrateur
