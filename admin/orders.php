@@ -6,12 +6,14 @@ $auth->requireAdminLogin();
 $admin = $auth->getCurrentAdmin();
 $db = new Database();
 
-// Compute a robust public URL base for uploads
+// Compute absolute public URL base for uploads
 $uploadsDir = rtrim(UPLOAD_DIR, '/');
-if (preg_match('#^https?://#', $uploadsDir) || substr($uploadsDir, 0, 1) === '/') {
-    $uploadsBase = $uploadsDir . '/';
+if (preg_match('#^https?://#', $uploadsDir)) {
+    $uploadsBaseUrl = $uploadsDir . '/';
+} elseif (substr($uploadsDir, 0, 1) === '/') {
+    $uploadsBaseUrl = rtrim(SITE_URL, '/') . $uploadsDir . '/';
 } else {
-    $uploadsBase = '../' . $uploadsDir . '/';
+    $uploadsBaseUrl = rtrim(SITE_URL, '/') . '/' . $uploadsDir . '/';
 }
 
 $error = '';
@@ -353,13 +355,13 @@ if (isset($_GET['view'])) {
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <?php if ($order['payment_proof']): ?>
-                                                <a href="<?php echo $uploadsBase . $order['payment_proof']; ?>" target="_blank"
+                                                <a href="<?php echo $uploadsBaseUrl . $order['payment_proof']; ?>" target="_blank"
                                                    class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; text-decoration: none;">
                                                     <i class="fas fa-image"></i>
                                                 </a>
-                                                <a href="<?php echo $uploadsBase . $order['payment_proof']; ?>" target="_blank"
+                                                <a href="<?php echo $uploadsBaseUrl . $order['payment_proof']; ?>" target="_blank"
                                                    style="display:inline-block; border:1px solid var(--border-color); border-radius:4px; overflow:hidden; line-height:0;">
-                                                    <img src="<?php echo $uploadsBase . $order['payment_proof']; ?>" alt="Preuve" style="height:32px; width:auto; display:block; object-fit:cover;" />
+                                                    <img src="<?php echo $uploadsBaseUrl . $order['payment_proof']; ?>" alt="Preuve" style="height:32px; width:auto; display:block; object-fit:cover;" />
                                                 </a>
                                             <?php endif; ?>
                                         </div>
@@ -455,12 +457,12 @@ if (isset($_GET['view'])) {
                                 <div>
                                     <strong>Preuve de paiement:</strong>
                                     <div style="margin-top: 0.5rem;">
-                                        <a href="<?php echo $uploadsBase . $selected_order['payment_proof']; ?>" target="_blank" style="color: var(--primary-color);">
+                                        <a href="<?php echo $uploadsBaseUrl . $selected_order['payment_proof']; ?>" target="_blank" style="color: var(--primary-color);">
                                             Voir l'image <i class="fas fa-external-link-alt"></i>
                                         </a>
                                     </div>
                                     <div style="margin-top: 0.5rem; border:1px solid var(--border-color); border-radius:8px; overflow:hidden;">
-                                        <img src="<?php echo $uploadsBase . $selected_order['payment_proof']; ?>" alt="Preuve de paiement" style="width:100%; max-height:300px; object-fit:contain; display:block;" />
+                                        <img src="<?php echo $uploadsBaseUrl . $selected_order['payment_proof']; ?>" alt="Preuve de paiement" style="width:100%; max-height:300px; object-fit:contain; display:block;" />
                                     </div>
                                 </div>
                             <?php endif; ?>
