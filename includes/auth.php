@@ -114,7 +114,8 @@ class Auth {
 
     public function requireAdminLogin() {
         if (!$this->isAdminLoggedIn()) {
-            header('Location: admin/login.php');
+            $base = rtrim(SITE_URL, '/');
+            header('Location: ' . $base . '/admin/login.php');
             exit();
         }
     }
