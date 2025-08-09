@@ -73,25 +73,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paramètres du site - Admin <?php echo htmlspecialchars($current['SITE_NAME']); ?></title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/admin-settings.css">
+    <link rel="stylesheet" href="<?php echo rtrim(SITE_URL, '/'); ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo rtrim(SITE_URL, '/'); ?>/assets/css/admin-settings.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
             <div class="nav-content">
-                <a href="dashboard.php" class="logo">
+                <a href="<?php echo rtrim(SITE_URL, '/'); ?>/admin/dashboard.php" class="logo">
                     <i class="fas fa-shield-alt"></i>
                     <?php echo htmlspecialchars($current['SITE_NAME']); ?> - Admin
                 </a>
                 <ul class="nav-links">
-                    <li><a href="dashboard.php">Dashboard</a></li>
-                    <li><a href="orders.php">Commandes</a></li>
-                    <li><a href="users.php">Utilisateurs</a></li>
-                    <li><a href="services.php">Services</a></li>
-                    <li><a href="categories.php">Catégories</a></li>
-                    <li><a href="../logout.php" class="btn btn-secondary">Déconnexion</a></li>
+                    <li><a href="<?php echo rtrim(SITE_URL, '/'); ?>/admin/dashboard.php">Dashboard</a></li>
+                    <li><a href="<?php echo rtrim(SITE_URL, '/'); ?>/admin/orders.php">Commandes</a></li>
+                    <li><a href="<?php echo rtrim(SITE_URL, '/'); ?>/admin/users.php">Utilisateurs</a></li>
+                    <li><a href="<?php echo rtrim(SITE_URL, '/'); ?>/admin/services.php">Services</a></li>
+                    <li><a href="<?php echo rtrim(SITE_URL, '/'); ?>/admin/categories.php">Catégories</a></li>
+                    <li><a href="<?php echo rtrim(SITE_URL, '/'); ?>/logout.php" class="btn btn-secondary">Déconnexion</a></li>
                 </ul>
             </div>
         </div>
@@ -131,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <div class="settings-actions">
                                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
-                                <a class="btn btn-secondary" href="dashboard.php"><i class="fas fa-arrow-left"></i> Retour</a>
+                                <a class="btn btn-secondary" href="<?php echo rtrim(SITE_URL, '/'); ?>/admin/dashboard.php"><i class="fas fa-arrow-left"></i> Retour</a>
                             </div>
                         </form>
                     </div>

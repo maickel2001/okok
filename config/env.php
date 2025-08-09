@@ -8,19 +8,27 @@ if (is_readable($envFile)) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
         $trimmed = trim($line);
-        if ($trimmed === '' || str_starts_with($trimmed, '#')) {
+        // Skip empty or commented lines
+        if ($trimmed === '' || substr($trimmed, 0, 1) === '#') {
             continue;
         }
         if (strpos($line, '=') === false) {
             continue;
         }
-        [$name, $value] = array_map('trim', explode('=', $line, 2));
+        $parts = explode('=', $line, 2);
+        $name = trim($parts[0]);
+        $value = isset($parts[1]) ? trim($parts[1]) : '';
         if ($name === '') {
             continue;
         }
         // Remove optional quotes
-        if ((str_starts_with($value, '"') && str_ends_with($value, '"')) || (str_starts_with($value, "'") && str_ends_with($value, "'"))) {
-            $value = substr($value, 1, -1);
+        $len = strlen($value);
+        if ($len >= 2) {
+            $first = substr($value, 0, 1);
+            $last = substr($value, -1);
+            if (($first === '"' && $last === '"') || ($first === "'" && $last === "'")) {
+                $value = substr($value, 1, -1);
+            }
         }
         if (getenv($name) === false) {
             putenv("$name=$value");
