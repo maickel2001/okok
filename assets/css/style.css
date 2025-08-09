@@ -582,3 +582,55 @@ select.form-control {
         display: flex;
     }
 }
+
+/* Desktop enhancements */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1280px;
+  }
+
+  .hero {
+    padding: 6rem 0;
+  }
+
+  .hero h1 {
+    font-size: 4rem;
+  }
+
+  .section {
+    padding: 5rem 0;
+  }
+
+  .nav-links {
+    gap: 2.5rem;
+  }
+
+  .services-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2.5rem;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .card {
+    padding: 2.25rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 1.1rem 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  .table tr:hover {
+    background: rgba(0, 255, 136, 0.06);
+  }
+}
+
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1440px;
+  }
+}
