@@ -13,6 +13,28 @@ if (!$auth->isAdminLoggedIn()) {
 
 $admin = $auth->getCurrentAdmin();
 
+// Plain fallback mode (no CSS) to avoid any rendering issue
+if (isset($_GET['plain']) && $_GET['plain'] == '1') {
+    header('Content-Type: text/html; charset=UTF-8');
+    echo '<!doctype html><html><head><meta charset="utf-8"><title>Paramètres (fallback)</title></head><body style="font-family: Arial; padding:20px;">';
+    echo '<h1>Paramètres du site (mode simplifié)</h1>';
+    if (!empty($error)) {
+        echo '<div style="color:#ff4444;">'.$error.'</div>';
+    }
+    if (!empty($success)) {
+        echo '<div style="color:#00aa66;">'.$success.'</div>';
+    }
+    echo '<form method="POST">';
+    echo '<div><label>Nom du site</label><br><input type="text" name="SITE_NAME" value="'.htmlspecialchars($current['SITE_NAME']).'" style="width:400px;"></div><br>';
+    echo '<div><label>URL du site</label><br><input type="url" name="SITE_URL" value="'.htmlspecialchars($current['SITE_URL']).'" style="width:400px;"></div><br>';
+    echo '<div><label>Dossier/URL uploads</label><br><input type="text" name="UPLOAD_DIR" value="'.htmlspecialchars($current['UPLOAD_DIR']).'" style="width:400px;"></div><br>';
+    echo '<div><label>Dossier logs</label><br><input type="text" name="LOGS_DIR" value="'.htmlspecialchars($current['LOGS_DIR']).'" style="width:400px;"></div><br>';
+    echo '<button type="submit">Enregistrer</button> ';
+    echo '<a href="dashboard.php">Retour</a>';
+    echo '</form></body></html>';
+    exit;
+}
+
 // Current values
 $current = [
     'SITE_NAME' => SITE_NAME,
