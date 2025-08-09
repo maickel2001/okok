@@ -634,3 +634,13 @@ select.form-control {
     max-width: 1440px;
   }
 }
+
+/* Force mobile-like layout on desktop content (not nav) */
+@media (min-width: 1024px) {
+  /* Use card lists instead of tables where both exist */
+  #desktopTable, #desktopOrdersTable { display: none !important; }
+  #mobileCards, #mobileOrdersList { display: block !important; }
+
+  /* Services: single column like mobile */
+  .services-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+}
