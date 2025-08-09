@@ -20,6 +20,7 @@ $services = $db->fetchAll("
 ");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!check_csrf($_POST['csrf_token'] ?? '')) { $error = 'Session expirée, veuillez recharger la page.'; } else {
     $service_id = (int)$_POST['service_id'];
     $link = sanitizeInput($_POST['link']);
     $quantity = (int)$_POST['quantity'];
@@ -58,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
+}
 }
 ?>
 <!DOCTYPE html>
@@ -114,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Formulaire -->
             <div class="card">
-                <form method="POST" action="" id="orderForm">
+                <form method="POST" action="" id="orderForm"><?php echo csrf_input(); ?>
                     <!-- Sélection du service -->
                     <div class="form-group">
                         <label for="service_id">

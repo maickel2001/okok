@@ -11,6 +11,7 @@ if ($auth->isUserLoggedIn()) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!check_csrf($_POST['csrf_token'] ?? '')) { $error = 'Session expirée, veuillez recharger la page.'; } else {
     $email = sanitizeInput($_POST['email']);
     $password = $_POST['password'];
 
@@ -26,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Email ou mot de passe incorrect.';
         }
     }
+}
 }
 ?>
 <!DOCTYPE html>
@@ -71,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 <?php endif; ?>
 
-                <form method="POST" action="">
+                <form method="POST" action=""><?php echo csrf_input(); ?>
                     <div class="form-group">
                         <label for="email">
                             <i class="fas fa-envelope"></i> Adresse email

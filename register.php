@@ -6,6 +6,7 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!check_csrf($_POST['csrf_token'] ?? '')) { $error = 'Session expirée, veuillez recharger la page.'; } else {
     $name = sanitizeInput($_POST['name']);
     $email = sanitizeInput($_POST['email']);
     $password = $_POST['password'];
@@ -28,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Cette adresse email est déjà utilisée ou une erreur est survenue.';
         }
     }
+}
 }
 ?>
 <!DOCTYPE html>
@@ -81,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <a href="login.php" class="btn btn-primary">Se connecter maintenant</a>
                     </div>
                 <?php else: ?>
-                    <form method="POST" action="">
+                    <form method="POST" action=""><?php echo csrf_input(); ?>
                         <div class="form-group">
                             <label for="name">
                                 <i class="fas fa-user"></i> Nom complet *

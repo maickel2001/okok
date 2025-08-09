@@ -44,6 +44,7 @@ if ($order['payment_proof']) {
 
 // Traitement de l'upload de preuve de paiement
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['payment_proof'])) {
+    if (!check_csrf($_POST['csrf_token'] ?? '')) { $error = 'Session expirée, veuillez recharger la page.'; } else {
     $file = $_FILES['payment_proof'];
 
     if ($file['error'] === UPLOAD_ERR_OK) {
@@ -72,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['payment_proof'])) {
     } else {
         $error = 'Erreur lors de l\'upload du fichier.';
     }
+}
 }
 ?>
 <!DOCTYPE html>
@@ -240,7 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['payment_proof'])) {
                     <i class="fas fa-upload"></i> Envoyer votre preuve de paiement
                 </h3>
 
-                <form method="POST" enctype="multipart/form-data" style="max-width: 600px; margin: 0 auto;">
+                <form method="POST" enctype="multipart/form-data" style="max-width: 600px; margin: 0 auto;"><?php echo csrf_input(); ?>
                     <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(255, 165, 0, 0.1); border-radius: 8px; border-left: 4px solid var(--warning-color);">
                         <h4 style="color: var(--warning-color); margin-bottom: 0.5rem;">
                             <i class="fas fa-info-circle"></i> Important
