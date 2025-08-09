@@ -5,6 +5,12 @@ if (is_readable($envLoader)) {
     require_once $envLoader;
 }
 
+// Optional local overrides (set env vars here)
+$localOverrides = __DIR__ . '/local_settings.php';
+if (is_readable($localOverrides)) {
+    require_once $localOverrides;
+}
+
 // Configuration de la base de données (fallback vers valeurs existantes si .env non défini)
 define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
 define('DB_NAME', getenv('DB_NAME') ?: 'u634930929_Inoo');

@@ -112,6 +112,7 @@ $monthly_stats = $db->fetchAll("
                     <li><a href="users.php">Utilisateurs</a></li>
                     <li><a href="services.php">Services</a></li>
                     <li><a href="categories.php">Catégories</a></li>
+                    <li><a href="settings.php">Paramètres</a></li>
                     <li>
                         <span style="color: var(--primary-color);">
                             <i class="fas fa-user-shield"></i> <?php echo htmlspecialchars($admin['name']); ?>
