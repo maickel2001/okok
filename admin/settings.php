@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
+// Enable error display for this admin page only
+if (function_exists('ini_set')) { @ini_set('display_errors', '1'); }
+@error_reporting(E_ALL);
 $auth = new Auth();
 $auth->requireAdminLogin();
 
