@@ -25,6 +25,9 @@ define('UPLOAD_DIR', rtrim(getenv('UPLOAD_DIR') ?: 'uploads/', '/') . '/');
 
 define('LOGS_DIR', rtrim(getenv('LOGS_DIR') ?: 'logs/', '/') . '/');
 
+// Asset version for cache-busting
+define('ASSET_VERSION', getenv('ASSET_VERSION') ?: '2');
+
 // Classe de connexion à la base de données
 class Database {
     private $connection;

@@ -9,7 +9,16 @@ $auth = new Auth();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo SITE_NAME; ?> - Services de Marketing Digital</title>
     <meta name="description" content="Boostez votre présence sur les réseaux sociaux avec nos services SMM professionnels. Followers, likes, vues et plus encore.">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <meta property="og:title" content="<?php echo SITE_NAME; ?> - Services SMM">
+    <meta property="og:description" content="Boostez votre présence sur les réseaux sociaux avec nos services SMM.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<?php echo rtrim(SITE_URL, '/'); ?>">
+    <meta property="og:image" content="<?php echo rtrim(SITE_URL, '/'); ?>/assets/og-image.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?php echo SITE_NAME; ?> - Services SMM">
+    <meta name="twitter:description" content="Boostez votre présence sur les réseaux sociaux avec nos services SMM.">
+    <meta name="twitter:image" content="<?php echo rtrim(SITE_URL, '/'); ?>/assets/og-image.jpg">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?php echo ASSET_VERSION; ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
