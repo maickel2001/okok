@@ -266,6 +266,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['payment_proof'])) {
                     <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
                         Votre preuve de paiement a été envoyée avec succès. Notre équipe va vérifier votre paiement et traiter votre commande dans les plus brefs délais.
                     </p>
+
+                    <?php if (!empty($order['payment_proof'])): ?>
+                    <div style="max-width: 500px; margin: 0 auto 1.5rem;">
+                        <div style="text-align: left; color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 600;">
+                            <i class="fas fa-image"></i> Preuve envoyée
+                        </div>
+                        <a href="<?php echo UPLOAD_DIR . $order['payment_proof']; ?>" target="_blank" style="display: inline-block; text-decoration: none;">
+                            <img src="<?php echo UPLOAD_DIR . $order['payment_proof']; ?>" alt="Preuve de paiement" style="width: 100%; max-height: 420px; object-fit: contain; border: 1px solid var(--border-color); border-radius: 8px;" />
+                        </a>
+                        <div style="margin-top: 0.5rem;">
+                            <a href="<?php echo UPLOAD_DIR . $order['payment_proof']; ?>" target="_blank" class="btn btn-secondary" style="text-decoration: none;">
+                                <i class="fas fa-external-link-alt"></i> Ouvrir l'image
+                            </a>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
                     <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                         <a href="dashboard.php" class="btn btn-secondary">
                             <i class="fas fa-tachometer-alt"></i> Retour au Dashboard
