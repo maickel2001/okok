@@ -79,6 +79,16 @@ $monthly_stats = $db->fetchAll("
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Affichage mobile: liste compacte au lieu du tableau */
+        @media (max-width: 768px) {
+            #desktopOrdersTable { display: none; }
+            #mobileOrdersList { display: grid; gap: 0.75rem; }
+        }
+        @media (min-width: 769px) {
+            #mobileOrdersList { display: none; }
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation Admin -->
@@ -221,7 +231,7 @@ $monthly_stats = $db->fetchAll("
                             <p>Toutes les commandes sont traitées ! 🎉</p>
                         </div>
                     <?php else: ?>
-                        <div class="table-container">
+                        <div class="table-container" id="desktopOrdersTable">
                             <table class="table">
                                 <thead>
                                     <tr>
@@ -277,6 +287,46 @@ $monthly_stats = $db->fetchAll("
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
+                        </div>
+
+                        <div id="mobileOrdersList">
+                            <?php foreach ($recent_orders as $order): ?>
+                            <div class="card" style="padding: 1rem;">
+                                <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:0.5rem;">
+                                    <div style="font-weight:700; color: var(--primary-color);">#<?php echo $order['id']; ?></div>
+                                    <span class="status-badge status-<?php echo $order['status']; ?>">
+                                        <?php
+                                        switch($order['status']) {
+                                            case 'pending': echo 'En attente'; break;
+                                            case 'processing': echo 'En cours'; break;
+                                            case 'completed': echo 'Terminé'; break;
+                                            case 'cancelled': echo 'Annulé'; break;
+                                        }
+                                        ?>
+                                    </span>
+                                </div>
+                                <div style="display:flex; gap:0.75rem; align-items:flex-start;">
+                                    <i class="<?php echo $order['category_icon']; ?>" style="color: var(--primary-color);"></i>
+                                    <div style="flex:1; min-width:0;">
+                                        <div style="font-weight:600; color: var(--text-primary);">
+                                            <?php echo htmlspecialchars($order['service_name']); ?> (<?php echo number_format($order['quantity']); ?>)
+                                        </div>
+                                        <div style="font-size:0.9rem; color: var(--text-secondary);">
+                                            <?php echo htmlspecialchars($order['user_name']); ?> · <?php echo htmlspecialchars($order['user_email']); ?>
+                                        </div>
+                                        <div style="display:flex; justify-content:space-between; margin-top:0.5rem; font-size:0.9rem;">
+                                            <span><?php echo date('d/m H:i', strtotime($order['created_at'])); ?></span>
+                                            <span style="font-weight:700; color: var(--primary-color);"><?php echo formatPrice($order['total_amount']); ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="margin-top:0.75rem; text-align:right;">
+                                    <a href="orders.php?view=<?php echo $order['id']; ?>" class="btn btn-primary" style="padding:0.4rem 0.75rem; font-size:0.85rem; text-decoration:none;">
+                                        <i class="fas fa-edit"></i> Gérer
+                                    </a>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
                 </div>
