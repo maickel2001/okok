@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
-    --primary-color: #00ff88;
-    --primary-dark: #00cc6a;
+    --primary-color: #ff7a00;
+    --primary-dark: #cc6200;
     --secondary-color: #1a1a1a;
     --dark-bg: #0f0f0f;
     --card-bg: #1e1e1e;
@@ -12,10 +12,10 @@
     --success-color: #00ff88;
     --warning-color: #ffa500;
     --error-color: #ff4444;
-    --gradient-primary: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+    --gradient-primary: linear-gradient(135deg, #ff7a00 0%, #cc6200 100%);
     --gradient-dark: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-    --shadow: 0 10px 30px rgba(0, 255, 136, 0.1);
-    --shadow-hover: 0 15px 40px rgba(0, 255, 136, 0.2);
+    --shadow: 0 10px 30px rgba(255, 122, 0, 0.15);
+    --shadow-hover: 0 15px 40px rgba(255, 122, 0, 0.25);
 }
 
 * {
@@ -86,7 +86,7 @@ body {
 
 .nav-links a:hover {
     color: var(--primary-color);
-    background: rgba(0, 255, 136, 0.1);
+    background: rgba(255, 122, 0, 0.1);
 }
 
 /* Boutons */
@@ -283,7 +283,7 @@ body {
 .form-control:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
+    box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.1);
 }
 
 .form-control::placeholder {
@@ -365,7 +365,7 @@ select.form-control {
 }
 
 .table tr:hover {
-    background: rgba(0, 255, 136, 0.05);
+    background: rgba(255, 122, 0, 0.05);
 }
 
 /* Status badges */
@@ -625,7 +625,7 @@ select.form-control {
   }
 
   .table tr:hover {
-    background: rgba(0, 255, 136, 0.06);
+    background: rgba(255, 122, 0, 0.06);
   }
 }
 

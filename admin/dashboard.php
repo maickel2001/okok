@@ -112,9 +112,6 @@ $monthly_stats = $db->fetchAll("
                     <li><a href="users.php">Utilisateurs</a></li>
                     <li><a href="services.php">Services</a></li>
                     <li><a href="categories.php">Catégories</a></li>
-                    <?php if (file_exists(__DIR__ . '/settings.php')): ?>
-                    <li><a href="settings.php">Paramètres</a></li>
-                    <?php endif; ?>
                     <li>
                         <span style="color: var(--primary-color);">
                             <i class="fas fa-user-shield"></i> <?php echo htmlspecialchars($admin['name']); ?>
