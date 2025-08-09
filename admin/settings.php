@@ -4,7 +4,12 @@ require_once __DIR__ . '/../includes/auth.php';
 if (function_exists('ini_set')) { @ini_set('display_errors', '1'); }
 @error_reporting(E_ALL);
 $auth = new Auth();
-$auth->requireAdminLogin();
+if (!$auth->isAdminLoggedIn()) {
+    // Hard fallback to login URL to avoid blank
+    $base = rtrim(SITE_URL, '/');
+    header('Location: ' . $base . '/admin/login.php');
+    exit();
+}
 
 $admin = $auth->getCurrentAdmin();
 
@@ -20,10 +25,10 @@ $success = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $siteName = trim($_POST['SITE_NAME'] ?? '');
-    $siteUrl = trim($_POST['SITE_URL'] ?? '');
-    $uploadDir = trim($_POST['UPLOAD_DIR'] ?? '');
-    $logsDir = trim($_POST['LOGS_DIR'] ?? '');
+    $siteName = trim(isset($_POST['SITE_NAME']) ? $_POST['SITE_NAME'] : '');
+    $siteUrl = trim(isset($_POST['SITE_URL']) ? $_POST['SITE_URL'] : '');
+    $uploadDir = trim(isset($_POST['UPLOAD_DIR']) ? $_POST['UPLOAD_DIR'] : '');
+    $logsDir = trim(isset($_POST['LOGS_DIR']) ? $_POST['LOGS_DIR'] : '');
 
     if ($siteName === '' || $siteUrl === '' || $uploadDir === '' || $logsDir === '') {
         $error = "Tous les champs sont obligatoires.";
