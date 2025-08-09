@@ -159,7 +159,7 @@ if (isset($_GET['plain']) && $_GET['plain'] == '1') {
                             <div class="alert alert-success"><i class="fas a-check-circle"></i> <?php echo $success; ?></div>
                         <?php endif; ?>
 
-                        <form method="POST" class="settings-form">
+                        <form method="POST" class="settings-form" action="api/save_settings.php" onsubmit="return submitSettings(event);">
                             <div class="form-group">
                                 <label for="SITE_NAME"><i class="fas fa-tag"></i> Nom du site</label>
                                 <input type="text" id="SITE_NAME" name="SITE_NAME" class="form-control" required value="<?php echo htmlspecialchars($current['SITE_NAME']); ?>">
@@ -217,4 +217,34 @@ if (isset($_GET['plain']) && $_GET['plain'] == '1') {
         </div>
     </div>
 </body>
+<script>
+function submitSettings(e) {
+    e.preventDefault();
+    const form = e.target;
+    const data = new FormData(form);
+    const successBox = document.createElement('div');
+    const errorBox = document.createElement('div');
+    successBox.className = 'alert alert-success';
+    errorBox.className = 'alert alert-error';
+    // Remove existing alerts
+    document.querySelectorAll('.alert').forEach(n => n.remove());
+
+    fetch(form.action, { method: 'POST', body: data })
+      .then(r => r.json())
+      .then(json => {
+        if (json.success) {
+          successBox.innerHTML = '<i class="fas fa-check-circle"></i> ' + json.message;
+          form.parentNode.insertBefore(successBox, form);
+        } else {
+          errorBox.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + (json.message || 'Erreur');
+          form.parentNode.insertBefore(errorBox, form);
+        }
+      })
+      .catch(() => {
+        errorBox.innerHTML = '<i class="fas fa-exclamation-circle"></i> Erreur réseau';
+        form.parentNode.insertBefore(errorBox, form);
+      });
+    return false;
+}
+</script>
 </html>
