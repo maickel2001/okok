@@ -1,39 +1,20 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';
+// Lightweight boot without DB to avoid blank page if DB down
+require_once __DIR__ . '/../config/database.php';
+if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+
 // Enable error display for this admin page only
 if (function_exists('ini_set')) { @ini_set('display_errors', '1'); }
 @error_reporting(E_ALL);
-$auth = new Auth();
-if (!$auth->isAdminLoggedIn()) {
-    // Hard fallback to login URL to avoid blank
+
+// Admin session check
+if (!isset($_SESSION['admin_id'])) {
     $base = rtrim(SITE_URL, '/');
     header('Location: ' . $base . '/admin/login.php');
     exit();
 }
 
-$admin = $auth->getCurrentAdmin();
-
-// Plain fallback mode (no CSS) to avoid any rendering issue
-if (isset($_GET['plain']) && $_GET['plain'] == '1') {
-    header('Content-Type: text/html; charset=UTF-8');
-    echo '<!doctype html><html><head><meta charset="utf-8"><title>Paramètres (fallback)</title></head><body style="font-family: Arial; padding:20px;">';
-    echo '<h1>Paramètres du site (mode simplifié)</h1>';
-    if (!empty($error)) {
-        echo '<div style="color:#ff4444;">'.$error.'</div>';
-    }
-    if (!empty($success)) {
-        echo '<div style="color:#00aa66;">'.$success.'</div>';
-    }
-    echo '<form method="POST">';
-    echo '<div><label>Nom du site</label><br><input type="text" name="SITE_NAME" value="'.htmlspecialchars($current['SITE_NAME']).'" style="width:400px;"></div><br>';
-    echo '<div><label>URL du site</label><br><input type="url" name="SITE_URL" value="'.htmlspecialchars($current['SITE_URL']).'" style="width:400px;"></div><br>';
-    echo '<div><label>Dossier/URL uploads</label><br><input type="text" name="UPLOAD_DIR" value="'.htmlspecialchars($current['UPLOAD_DIR']).'" style="width:400px;"></div><br>';
-    echo '<div><label>Dossier logs</label><br><input type="text" name="LOGS_DIR" value="'.htmlspecialchars($current['LOGS_DIR']).'" style="width:400px;"></div><br>';
-    echo '<button type="submit">Enregistrer</button> ';
-    echo '<a href="dashboard.php">Retour</a>';
-    echo '</form></body></html>';
-    exit;
-}
+$adminName = isset($_SESSION['admin_name']) ? $_SESSION['admin_name'] : 'Admin';
 
 // Current values
 $current = [
@@ -77,9 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $target = __DIR__ . '/../config/local_settings.php';
         $targetDir = dirname($target);
-        if (!is_dir($targetDir)) {
-            @mkdir($targetDir, 0775, true);
-        }
+        if (!is_dir($targetDir)) { @mkdir($targetDir, 0775, true); }
 
         $bytes = @file_put_contents($target, $php);
         if ($bytes === false) {
@@ -93,6 +72,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $current['LOGS_DIR'] = $logsDir;
         }
     }
+}
+
+// Plain fallback mode (no CSS) to avoid any rendering issue
+if (isset($_GET['plain']) && $_GET['plain'] == '1') {
+    header('Content-Type: text/html; charset=UTF-8');
+    echo '<!doctype html><html><head><meta charset="utf-8"><title>Paramètres (fallback)</title></head><body style="font-family: Arial; padding:20px;">';
+    echo '<h1>Paramètres du site (mode simplifié)</h1>';
+    if (!empty($error)) { echo '<div style="color:#ff4444;">'.$error.'</div>'; }
+    if (!empty($success)) { echo '<div style="color:#00aa66;">'.$success.'</div>'; }
+    echo '<form method="POST">';
+    echo '<div><label>Nom du site</label><br><input type="text" name="SITE_NAME" value="'.htmlspecialchars($current['SITE_NAME']).'" style="width:400px;"></div><br>';
+    echo '<div><label>URL du site</label><br><input type="url" name="SITE_URL" value="'.htmlspecialchars($current['SITE_URL']).'" style="width:400px;"></div><br>';
+    echo '<div><label>Dossier/URL uploads</label><br><input type="text" name="UPLOAD_DIR" value="'.htmlspecialchars($current['UPLOAD_DIR']).'" style="width:400px;"></div><br>';
+    echo '<div><label>Dossier logs</label><br><input type="text" name="LOGS_DIR" value="'.htmlspecialchars($current['LOGS_DIR']).'" style="width:400px;"></div><br>';
+    echo '<button type="submit">Enregistrer</button> ';
+    echo '<a href="dashboard.php">Retour</a>';
+    echo '</form></body></html>';
+    exit;
 }
 ?>
 <!DOCTYPE html>
