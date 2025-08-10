@@ -287,3 +287,15 @@ Pour mettre à jour le site:
 **🎉 Félicitations !** Votre site SMM est maintenant prêt à être utilisé !
 
 N'oubliez pas de personnaliser le contenu selon votre entreprise et votre marché local.
+
+## ✉️ Configuration e‑mail
+Ajoutez ces variables dans `.env` pour améliorer la délivrabilité des emails transactionnels:
+
+```
+MAIL_FROM_EMAIL=no-reply@votre-domaine
+MAIL_FROM_NAME="Nom de votre site"
+MAIL_BCC=ops@votre-domaine   # optionnel, copie cachée
+MAIL_RETURN_PATH=bounce@votre-domaine  # optionnel, adresse de retour
+```
+
+Assurez-vous que votre domaine a des enregistrements SPF/DKIM/DMARC valides. Si la fonction PHP `mail()` est limitée, basculez sur SMTP (PHPMailer) – je peux l’activer rapidement sur demande.

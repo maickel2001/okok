@@ -52,7 +52,12 @@ function send_html_mail(string $to, string $subject, string $htmlBody, string $f
     }
     $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
 
-    $ok = @mail($to, $encodedSubject, $htmlBody, $headers);
+    $returnPath = getenv('MAIL_RETURN_PATH');
+    if (!empty($returnPath)) {
+        $ok = @mail($to, $encodedSubject, $htmlBody, $headers, '-f ' . escapeshellarg($returnPath));
+    } else {
+        $ok = @mail($to, $encodedSubject, $htmlBody, $headers);
+    }
     mail_log(($ok ? 'OK' : 'FAIL') . " to=$to subj=" . str_replace(["\r","\n"], ' ', $subject));
     return $ok;
 }
