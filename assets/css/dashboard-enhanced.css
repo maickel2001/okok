@@ -69,7 +69,7 @@
 
 .stat-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(0, 255, 136, 0.15);
+    box-shadow: 0 10px 25px rgba(255, 122, 0, 0.15);
 }
 
 /* Animation des nombres */
@@ -86,7 +86,7 @@
 
 .order-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 255, 136, 0.1);
+    box-shadow: 0 8px 25px rgba(255, 122, 0, 0.12);
     border-color: var(--primary-color);
 }
 
@@ -140,7 +140,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, transparent 50%);
+    background: linear-gradient(135deg, rgba(255, 122, 0, 0.05) 0%, transparent 50%);
     border-radius: 12px;
     pointer-events: none;
 }

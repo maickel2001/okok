@@ -11,6 +11,7 @@ if ($auth->isUserLoggedIn()) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!check_csrf($_POST['csrf_token'] ?? '')) { $error = 'Session expirée, veuillez recharger la page.'; } else {
     $email = sanitizeInput($_POST['email']);
     $password = $_POST['password'];
 
@@ -27,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -34,10 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - <?php echo SITE_NAME; ?></title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?php echo ASSET_VERSION; ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body><?php require_once __DIR__ . '/maintenance.php'; refund_banner(); ?>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
@@ -71,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 <?php endif; ?>
 
-                <form method="POST" action="">
+                <form method="POST" action=""><?php echo csrf_input(); ?>
                     <div class="form-group">
                         <label for="email">
                             <i class="fas fa-envelope"></i> Adresse email

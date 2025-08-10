@@ -1,14 +1,32 @@
 <?php
-// Configuration de la base de données
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'u634930929_Inoo');
-define('DB_USER', 'u634930929_Inoo');
-define('DB_PASS', 'Ino1234@');
+// Load environment variables if available
+$envLoader = __DIR__ . '/env.php';
+if (is_readable($envLoader)) {
+    require_once $envLoader;
+}
+
+// Optional local overrides (set env vars here)
+$localOverrides = __DIR__ . '/local_settings.php';
+if (is_readable($localOverrides)) {
+    require_once $localOverrides;
+}
+
+// Configuration de la base de données (fallback vers valeurs existantes si .env non défini)
+define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_NAME', getenv('DB_NAME') ?: 'u634930929_Inoo');
+define('DB_USER', getenv('DB_USER') ?: 'u634930929_Inoo');
+define('DB_PASS', getenv('DB_PASS') ?: 'Ino1234@');
 
 // Configuration générale du site
-define('SITE_NAME', 'SMM Pro');
-define('SITE_URL', 'https://darkgoldenrod-turkey-940813.hostingersite.com/');
-define('UPLOAD_DIR', 'uploads/');
+define('SITE_NAME', getenv('SITE_NAME') ?: 'SMM Pro');
+define('SITE_URL', getenv('SITE_URL') ?: 'https://darkgoldenrod-turkey-940813.hostingersite.com/');
+
+define('UPLOAD_DIR', rtrim(getenv('UPLOAD_DIR') ?: 'uploads/', '/') . '/');
+
+define('LOGS_DIR', rtrim(getenv('LOGS_DIR') ?: 'logs/', '/') . '/');
+
+// Asset version for cache-busting
+define('ASSET_VERSION', getenv('ASSET_VERSION') ?: '2');
 
 // Classe de connexion à la base de données
 class Database {
@@ -54,8 +72,11 @@ class Database {
     }
 }
 
-// Fonction pour créer le dossier uploads s'il n'existe pas
-if (!file_exists(UPLOAD_DIR)) {
-    mkdir(UPLOAD_DIR, 0777, true);
+// Créer les dossiers nécessaires s'ils n'existent pas
+if (!is_dir(UPLOAD_DIR)) {
+    @mkdir(UPLOAD_DIR, 0777, true);
+}
+if (!is_dir(LOGS_DIR)) {
+    @mkdir(LOGS_DIR, 0777, true);
 }
 ?>

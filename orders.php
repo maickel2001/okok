@@ -59,10 +59,10 @@ $stats = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mes Commandes - <?php echo SITE_NAME; ?></title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?php echo ASSET_VERSION; ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body><?php require_once __DIR__ . '/maintenance.php'; refund_banner(); ?>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
@@ -315,6 +315,24 @@ $stats = [
                                 </div>
                             </div>
 
+                            <?php if (!empty($order['admin_notes'])): ?>
+                                <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(0, 255, 136, 0.1); border-radius: 8px; border-left: 4px solid var(--success-color);">
+                                    <h5 style="color: var(--primary-color); margin: 0 0 0.5rem 0;">
+                                        <i class="fas fa-sticky-note"></i> Note de l'administrateur
+                                    </h5>
+                                    <p style="margin: 0; color: var(--text-secondary);"><?php echo htmlspecialchars($order['admin_notes']); ?></p>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if ($order['status'] === 'cancelled' && !empty($order['cancel_reason'])): ?>
+                                <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(255, 68, 68, 0.1); border-radius: 8px; border-left: 4px solid var(--error-color);">
+                                    <h5 style="color: var(--error-color); margin: 0 0 0.5rem 0;">
+                                        <i class="fas fa-times-circle"></i> Raison de l'annulation
+                                    </h5>
+                                    <p style="margin: 0; color: var(--text-secondary);"><?php echo htmlspecialchars($order['cancel_reason']); ?></p>
+                                </div>
+                            <?php endif; ?>
+
                             <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
                                 <button onclick="viewOrder(<?php echo $order['id']; ?>)"
                                         class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
@@ -437,6 +455,13 @@ $stats = [
                                 <div style="margin-top: 1rem; padding: 1rem; background: rgba(0, 255, 136, 0.1); border-radius: 8px;">
                                     <h5 style="color: var(--primary-color); margin-bottom: 0.5rem;">Note de l'administrateur:</h5>
                                     <p style="margin: 0; color: var(--text-secondary);">${order.admin_notes}</p>
+                                </div>
+                            ` : ''}
+
+                            ${order.status === 'cancelled' && order.cancel_reason ? `
+                                <div style=\"margin-top: 1rem; padding: 1rem; background: rgba(255, 68, 68, 0.1); border-radius: 8px;\">
+                                    <h5 style=\"color: var(--error-color); margin-bottom: 0.5rem;\">Raison de l'annulation:</h5>
+                                    <p style=\"margin: 0; color: var(--text-secondary);\">${order.cancel_reason}</p>
                                 </div>
                             ` : ''}
                         </div>

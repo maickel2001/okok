@@ -6,6 +6,14 @@ $auth->requireUserLogin();
 $user = $auth->getCurrentUser();
 $db = new Database();
 
+// Compute a robust public URL base for uploads
+$uploadsDir = rtrim(UPLOAD_DIR, '/');
+if (preg_match('#^https?://#', $uploadsDir) || substr($uploadsDir, 0, 1) === '/') {
+    $uploadsBase = $uploadsDir . '/';
+} else {
+    $uploadsBase = $uploadsDir . '/';
+}
+
 $error = '';
 $success = '';
 
@@ -36,6 +44,7 @@ if ($order['payment_proof']) {
 
 // Traitement de l'upload de preuve de paiement
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['payment_proof'])) {
+    if (!check_csrf($_POST['csrf_token'] ?? '')) { $error = 'Session expirée, veuillez recharger la page.'; } else {
     $file = $_FILES['payment_proof'];
 
     if ($file['error'] === UPLOAD_ERR_OK) {
@@ -57,6 +66,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['payment_proof'])) {
                 $db->query("UPDATE orders SET payment_proof = ? WHERE id = ?", [$filename, $order_id]);
                 $success = 'Preuve de paiement envoyée avec succès ! Votre commande sera traitée sous 24h.';
                 $order['payment_proof'] = $filename;
+                // Email notification (best-effort)
+                require_once __DIR__ . '/includes/mailer.php';
+                require_once __DIR__ . '/includes/mail_templates.php';
+                @send_html_mail($user['email'], 'Preuve de paiement reçue - ' . SITE_NAME, tpl_payment_received((int)$order_id));
             } else {
                 $error = 'Erreur lors de l\'upload du fichier.';
             }
@@ -65,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['payment_proof'])) {
         $error = 'Erreur lors de l\'upload du fichier.';
     }
 }
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -72,10 +86,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['payment_proof'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paiement - Commande #<?php echo $order_id; ?> - <?php echo SITE_NAME; ?></title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?php echo ASSET_VERSION; ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body><?php require_once __DIR__ . '/maintenance.php'; refund_banner(); ?>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
@@ -232,7 +246,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['payment_proof'])) {
                     <i class="fas fa-upload"></i> Envoyer votre preuve de paiement
                 </h3>
 
-                <form method="POST" enctype="multipart/form-data" style="max-width: 600px; margin: 0 auto;">
+                <form method="POST" enctype="multipart/form-data" style="max-width: 600px; margin: 0 auto;"><?php echo csrf_input(); ?>
                     <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(255, 165, 0, 0.1); border-radius: 8px; border-left: 4px solid var(--warning-color);">
                         <h4 style="color: var(--warning-color); margin-bottom: 0.5rem;">
                             <i class="fas fa-info-circle"></i> Important
@@ -266,6 +280,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['payment_proof'])) {
                     <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
                         Votre preuve de paiement a été envoyée avec succès. Notre équipe va vérifier votre paiement et traiter votre commande dans les plus brefs délais.
                     </p>
+
+                    <?php if (!empty($order['payment_proof'])): ?>
+                    <div style="max-width: 500px; margin: 0 auto 1.5rem;">
+                        <div style="text-align: left; color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 600;">
+                            <i class="fas fa-image"></i> Preuve envoyée
+                        </div>
+                        <a href="<?php echo $uploadsBase . $order['payment_proof']; ?>" target="_blank" style="display: inline-block; text-decoration: none;">
+                            <img src="<?php echo $uploadsBase . $order['payment_proof']; ?>" alt="Preuve de paiement" style="width: 100%; max-height: 420px; object-fit: contain; border: 1px solid var(--border-color); border-radius: 8px;" />
+                        </a>
+                        <div style="margin-top: 0.5rem;">
+                            <a href="<?php echo $uploadsBase . $order['payment_proof']; ?>" target="_blank" class="btn btn-secondary" style="text-decoration: none;">
+                                <i class="fas fa-external-link-alt"></i> Ouvrir l'image
+                            </a>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
                     <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                         <a href="dashboard.php" class="btn btn-secondary">
                             <i class="fas fa-tachometer-alt"></i> Retour au Dashboard

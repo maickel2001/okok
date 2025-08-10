@@ -1,6 +1,17 @@
 <?php
+// Secure session cookie parameters
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'secure' => $isHttps,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
 session_start();
-require_once '/home/u634930929/domains/darkgoldenrod-turkey-940813.hostingersite.com/public_html/config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
 class Auth {
     private $db;
@@ -15,6 +26,10 @@ class Auth {
         $user = $this->db->fetch($sql, [$email]);
 
         if ($user && password_verify($password, $user['password'])) {
+            // Regenerate session to prevent fixation
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_regenerate_id(true);
+            }
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['user_email'] = $user['email'];
@@ -29,6 +44,10 @@ class Auth {
         $admin = $this->db->fetch($sql, [$email]);
 
         if ($admin && password_verify($password, $admin['password'])) {
+            // Regenerate session to prevent fixation
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_regenerate_id(true);
+            }
             $_SESSION['admin_id'] = $admin['id'];
             $_SESSION['admin_name'] = $admin['name'];
             $_SESSION['admin_email'] = $admin['email'];
@@ -70,7 +89,17 @@ class Auth {
 
     // Déconnexion
     public function logout() {
-        session_destroy();
+        // Unset all session variables
+        $_SESSION = [];
+        // Delete the session cookie
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+        }
+        // Destroy session
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
         header('Location: index.php');
         exit();
     }
@@ -85,7 +114,8 @@ class Auth {
 
     public function requireAdminLogin() {
         if (!$this->isAdminLoggedIn()) {
-            header('Location: admin/login.php');
+            $base = rtrim(SITE_URL, '/');
+            header('Location: ' . $base . '/admin/login.php');
             exit();
         }
     }
@@ -107,6 +137,23 @@ class Auth {
         }
         return null;
     }
+}
+
+// CSRF utilities
+function generate_csrf_token() {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function csrf_input() {
+    $token = generate_csrf_token();
+    return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
+}
+
+function check_csrf($token) {
+    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], (string)$token);
 }
 
 // Fonctions utilitaires

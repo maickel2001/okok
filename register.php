@@ -6,6 +6,7 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!check_csrf($_POST['csrf_token'] ?? '')) { $error = 'Session expirée, veuillez recharger la page.'; } else {
     $name = sanitizeInput($_POST['name']);
     $email = sanitizeInput($_POST['email']);
     $password = $_POST['password'];
@@ -23,11 +24,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Les mots de passe ne correspondent pas.';
     } else {
         if ($auth->registerUser($name, $email, $password, $phone)) {
+            // Send welcome email (best-effort)
+            require_once __DIR__ . '/includes/mailer.php';
+            require_once __DIR__ . '/includes/mail_templates.php';
+            @send_html_mail($email, 'Bienvenue sur ' . SITE_NAME, tpl_welcome($name));
             $success = 'Inscription réussie ! Vous pouvez maintenant vous connecter.';
         } else {
             $error = 'Cette adresse email est déjà utilisée ou une erreur est survenue.';
         }
     }
+}
 }
 ?>
 <!DOCTYPE html>
@@ -36,10 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription - <?php echo SITE_NAME; ?></title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?php echo ASSET_VERSION; ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body><?php require_once __DIR__ . '/maintenance.php'; refund_banner(); ?>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
@@ -81,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <a href="login.php" class="btn btn-primary">Se connecter maintenant</a>
                     </div>
                 <?php else: ?>
-                    <form method="POST" action="">
+                    <form method="POST" action=""><?php echo csrf_input(); ?>
                         <div class="form-group">
                             <label for="name">
                                 <i class="fas fa-user"></i> Nom complet *

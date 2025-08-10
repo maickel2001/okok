@@ -114,6 +114,23 @@ location ~ \.php$ {
 }
 ```
 
+## 🔧 Configuration via .env (recommandé)
+
+Créez un fichier `.env` à la racine en vous inspirant de `.env.example`:
+
+```
+SITE_NAME="SMM Pro"
+SITE_URL="http://localhost"
+DB_HOST=localhost
+DB_NAME=your_database_name
+DB_USER=your_database_user
+DB_PASS=your_database_password
+UPLOAD_DIR=uploads
+LOGS_DIR=logs
+```
+
+Les chemins absolus ont été supprimés: les includes utilisent désormais `__DIR__`.
+
 ## 👤 Comptes par défaut
 
 ### Administrateur
@@ -270,3 +287,15 @@ Pour mettre à jour le site:
 **🎉 Félicitations !** Votre site SMM est maintenant prêt à être utilisé !
 
 N'oubliez pas de personnaliser le contenu selon votre entreprise et votre marché local.
+
+## ✉️ Configuration e‑mail
+Ajoutez ces variables dans `.env` pour améliorer la délivrabilité des emails transactionnels:
+
+```
+MAIL_FROM_EMAIL=no-reply@votre-domaine
+MAIL_FROM_NAME="Nom de votre site"
+MAIL_BCC=ops@votre-domaine   # optionnel, copie cachée
+MAIL_RETURN_PATH=bounce@votre-domaine  # optionnel, adresse de retour
+```
+
+Assurez-vous que votre domaine a des enregistrements SPF/DKIM/DMARC valides. Si la fonction PHP `mail()` est limitée, basculez sur SMTP (PHPMailer) – je peux l’activer rapidement sur demande.

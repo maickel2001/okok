@@ -1,5 +1,5 @@
 <?php
-require_once '/home/u634930929/domains/darkgoldenrod-turkey-940813.hostingersite.com/public_html/includes/auth.php';
+require_once __DIR__ . '/../includes/auth.php';
 $auth = new Auth();
 $auth->requireAdminLogin();
 

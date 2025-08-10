@@ -1,0 +1,14 @@
+# Environment
+.env
+
+# Uploads and logs (keep folders, ignore contents)
+uploads/*
+!uploads/.gitkeep
+logs/*
+!logs/.gitkeep
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
