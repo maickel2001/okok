@@ -1,0 +1,7 @@
+# Security: deny access to .env
+<Files ".env">
+  Require all denied
+</Files>
+
+# Disable directory indexing
+Options -Indexes
