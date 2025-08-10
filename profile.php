@@ -87,7 +87,7 @@ $stats = [
     <link rel="stylesheet" href="assets/css/style.css?v=<?php echo ASSET_VERSION; ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body><?php require_once __DIR__ . '/maintenance.php'; refund_banner(); ?>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">

@@ -51,6 +51,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $order_id = $db->lastInsertId();
 
+                // Email confirmation (best-effort)
+                require_once __DIR__ . '/includes/mailer.php';
+                require_once __DIR__ . '/includes/mail_templates.php';
+                @send_html_mail($user['email'], 'Commande #' . $order_id . ' - ' . SITE_NAME, tpl_order_confirm((int)$order_id, formatPrice($total_amount)));
+
                 // Redirection vers la page de paiement
                 header("Location: payment.php?order_id=" . $order_id);
                 exit();
@@ -71,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body><?php require_once __DIR__ . '/maintenance.php'; refund_banner(); ?>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">

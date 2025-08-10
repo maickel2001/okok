@@ -66,6 +66,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['payment_proof'])) {
                 $db->query("UPDATE orders SET payment_proof = ? WHERE id = ?", [$filename, $order_id]);
                 $success = 'Preuve de paiement envoyée avec succès ! Votre commande sera traitée sous 24h.';
                 $order['payment_proof'] = $filename;
+                // Email notification (best-effort)
+                require_once __DIR__ . '/includes/mailer.php';
+                require_once __DIR__ . '/includes/mail_templates.php';
+                @send_html_mail($user['email'], 'Preuve de paiement reçue - ' . SITE_NAME, tpl_payment_received((int)$order_id));
             } else {
                 $error = 'Erreur lors de l\'upload du fichier.';
             }
@@ -85,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['payment_proof'])) {
     <link rel="stylesheet" href="assets/css/style.css?v=<?php echo ASSET_VERSION; ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body><?php require_once __DIR__ . '/maintenance.php'; refund_banner(); ?>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">

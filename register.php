@@ -24,6 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Les mots de passe ne correspondent pas.';
     } else {
         if ($auth->registerUser($name, $email, $password, $phone)) {
+            // Send welcome email (best-effort)
+            require_once __DIR__ . '/includes/mailer.php';
+            require_once __DIR__ . '/includes/mail_templates.php';
+            @send_html_mail($email, 'Bienvenue sur ' . SITE_NAME, tpl_welcome($name));
             $success = 'Inscription réussie ! Vous pouvez maintenant vous connecter.';
         } else {
             $error = 'Cette adresse email est déjà utilisée ou une erreur est survenue.';
@@ -41,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="assets/css/style.css?v=<?php echo ASSET_VERSION; ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body><?php require_once __DIR__ . '/maintenance.php'; refund_banner(); ?>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
