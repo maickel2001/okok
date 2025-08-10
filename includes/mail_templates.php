@@ -40,3 +40,36 @@ function tpl_payment_received(int $orderId): string {
              . 'style="display:inline-block;padding:12px 18px;background:#ff7a00;color:#0a0a0a;text-decoration:none;border-radius:10px;font-weight:700">Voir mes commandes</a>';
     return email_wrapper('Preuve reçue', $content);
 }
+
+function tpl_order_status_update(int $orderId, string $status, string $serviceName, string $adminNotes = '', string $cancelReason = ''): string {
+    $map = [
+        'pending' => 'En attente',
+        'processing' => 'En cours',
+        'completed' => 'Terminée',
+        'cancelled' => 'Annulée',
+    ];
+    $statusLabel = isset($map[$status]) ? $map[$status] : ucfirst($status);
+
+    $content  = '<h2 style="margin:0 0 8px 0;">Commande #' . (int)$orderId . ' — ' . htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8') . '</h2>';
+    $content .= '<p style="margin:0 0 8px 0;color:#b5b5b7">Service: <strong style="color:#fff">' . htmlspecialchars($serviceName, ENT_QUOTES, 'UTF-8') . '</strong></p>';
+
+    if ($status === 'completed') {
+        $content .= '<p style="margin:0 0 12px 0;color:#b5b5b7">Votre commande est terminée. Merci pour votre confiance !</p>';
+    } elseif ($status === 'processing') {
+        $content .= '<p style="margin:0 0 12px 0;color:#b5b5b7">Votre commande est en cours de traitement.</p>';
+    } elseif ($status === 'cancelled') {
+        $content .= '<p style="margin:0 0 12px 0;color:#b5b5b7">Votre commande a été annulée.</p>';
+        if ($cancelReason !== '') {
+            $content .= '<p style="margin:0 0 12px 0;color:#b5b5b7">Motif: <em>' . htmlspecialchars($cancelReason, ENT_QUOTES, 'UTF-8') . '</em></p>';
+        }
+    }
+
+    if ($adminNotes !== '') {
+        $content .= '<p style="margin:0 0 12px 0;color:#b5b5b7">Note de l\'administrateur: <em>' . htmlspecialchars($adminNotes, ENT_QUOTES, 'UTF-8') . '</em></p>';
+    }
+
+    $content .= '<a href="' . rtrim(SITE_URL, '/') . '/orders.php" '
+             . 'style="display:inline-block;padding:12px 18px;background:#ff7a00;color:#0a0a0a;text-decoration:none;border-radius:10px;font-weight:700">Voir le détail</a>';
+
+    return email_wrapper('Mise à jour de commande', $content);
+}

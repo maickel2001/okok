@@ -42,6 +42,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         [$status, $admin_notes, $order_id]
                     );
                 }
+
+                // Email de mise à jour au client (best-effort)
+                try {
+                    $orderRow = $db->fetch("SELECT o.id, o.status, o.admin_notes, o.cancel_reason, u.email as user_email, u.name as user_name, s.name as service_name FROM orders o JOIN users u ON o.user_id = u.id JOIN services s ON o.service_id = s.id WHERE o.id = ?", [$order_id]);
+                    if ($orderRow && !empty($orderRow['user_email'])) {
+                        require_once __DIR__ . '/../includes/mailer.php';
+                        require_once __DIR__ . '/../includes/mail_templates.php';
+                        @send_html_mail(
+                            $orderRow['user_email'],
+                            'Commande #' . $orderRow['id'] . ' — ' . SITE_NAME,
+                            tpl_order_status_update((int)$orderRow['id'], $status, (string)$orderRow['service_name'], (string)$admin_notes, (string)$cancel_reason)
+                        );
+                    }
+                } catch (Exception $e) {
+                    // ignore mail error
+                }
+
                 $success = 'Commande mise à jour avec succès.';
             } catch (Exception $e) {
                 $error = 'Erreur lors de la mise à jour de la commande.';
